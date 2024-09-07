@@ -1,0 +1,37 @@
+{
+  "name": "scaffoldx",
+  "version": "1.0.0",
+  "description": "An express server scaffolding CLI tool",
+  "main": "index.js",
+  "bin": {
+    "scaffoldx": "index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OlaOluwalekan/scaffoldx.git"
+  },
+  "keywords": [
+    "express",
+    "nodejs",
+    "mongoose",
+    "starter"
+  ],
+  "author": "OlaOluwalekan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/OlaOluwalekan/scaffoldx/issues"
+  },
+  "homepage": "https://github.com/OlaOluwalekan/scaffoldx#readme",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "ejs": "^3.1.10",
+    "fs-extra": "^11.2.0",
+    "inquirer": "^10.2.0",
+    "ora": "^8.1.0"
+  }
+}

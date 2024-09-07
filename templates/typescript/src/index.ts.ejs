@@ -1,0 +1,28 @@
+import express from "express";
+import dotenv from "dotenv";
+dotenv.config();
+import "express-async-errors";
+import connectDB from "./db/connect.js";
+import NotFound from "./middleware/not-found.js";
+import errorHandlerMiddleware from "./middleware/error-handler.js";
+import userRoutes from "./routes/users.routes.js";
+
+const app = express();
+
+app.get("/", (req, res) => {
+  res.send("Hello, people with ts!");
+});
+
+// routes middleware
+app.use("/api/v1/users", userRoutes);
+
+// error middleware
+app.use(NotFound);
+app.use(errorHandlerMiddleware);
+
+const port = process.env.PORT || <%= port %>;
+
+app.listen(port, async () => {
+  await connectDB();
+  console.log(`server listening on port ${port}...`);
+});
