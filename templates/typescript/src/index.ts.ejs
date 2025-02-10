@@ -2,7 +2,9 @@ import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
 import "express-async-errors";
-import connectDB from "./db/connect.js";
+<% if (useDatabase && orm === "Mongoose") { %>
+import connectDB from './db/connect.js';
+<% } %>
 import NotFound from "./middleware/not-found.js";
 import errorHandlerMiddleware from "./middleware/error-handler.js";
 import userRoutes from "./routes/users.routes.js";
@@ -23,6 +25,8 @@ app.use(errorHandlerMiddleware);
 const port = process.env.PORT || <%= port %>;
 
 app.listen(port, async () => {
-  await connectDB();
+  <% if (useDatabase && orm == "Mongoose") {%>
+    await connectDB();
+  <% } %>
   console.log(`server listening on port ${port}...`);
 });

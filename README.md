@@ -1,7 +1,5 @@
 # ScaffoldX
 
-# ScaffoldX
-
 [![npm version](https://badge.fury.io/js/scaffoldx.svg)](https://www.npmjs.com/package/scaffoldx)
 [![license](https://img.shields.io/npm/l/scaffoldx.svg)](https://www.npmjs.com/package/scaffoldx)
 

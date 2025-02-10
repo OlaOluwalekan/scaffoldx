@@ -12,18 +12,32 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  <% if (useDatabase && orm == "Prisma") {%>
+    "prisma": {
+        "schema": "src/prisma/schema.prisma"
+    },
+  <% } %>
   "dependencies": {
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-async-errors": "^3.1.1",
     "http-status-codes": "^2.3.0",
-    "mongoose": "^8.6.1",
     "rimraf": "^6.0.1"
+    <% if (useDatabase && orm == "Mongoose") {%>
+    ,"mongoose": "^8.6.1"
+    <% } %>
+    <% if (useDatabase && orm == "Prisma") {%>
+    ,"@prisma/client": "^5.17.0"
+    <% } %>
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^22.5.4",
     "nodemon": "^3.1.4",
     "typescript": "^5.5.4"
+    <% if (useDatabase && orm == "Prisma") {%>
+    ,"prisma": "^5.17.0",
+    "ts-node": "^10.9.2"
+    <% } %>
   }
 }

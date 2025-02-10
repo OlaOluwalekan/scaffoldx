@@ -1,24 +1,40 @@
-{
-  "name": "<%= appName %>",
-  "version": "1.0.0",
-  "main": "<%= entryPoint %>.js",
-  "scripts": {
-    "start": "node src/<%= entryPoint %>.js",
-    "dev": "nodemon src/<%= entryPoint %>.js"
-  },
-  "type": "module",
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "express-async-errors": "^3.1.1",
-    "http-status-codes": "^2.3.0",
-    "mongoose": "^8.6.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.4"
-  }
+{ 
+    "name": "<%= appName %>",
+    "version": "1.0.0",
+    "main": "<%= entryPoint %>.js",
+    "scripts": { 
+        "start": "node src/<%= entryPoint %>.js", 
+        "dev": "nodemon src/<%=entryPoint %>.js"
+    },
+    "type": "module",
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    <% if (useDatabase && orm == "Prisma") {%>
+    "prisma": {
+        "schema": "src/prisma/schema.prisma"
+    },
+    <% } %>
+    "dependencies": {
+        "dotenv": "^16.4.5",
+        "express": "^4.19.2",
+        "express-async-errors": "^3.1.1",
+        "http-status-codes": "^2.3.0"
+        <% if (useDatabase && orm == "Mongoose") {%>
+        ,"mongoose": "^8.6.1"
+        <% } %>
+        <% if (useDatabase && orm == "Prisma") {%>
+        ,"@prisma/client": "^5.17.0"
+        <% } %>
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.4"
+        <% if (useDatabase && orm == "Prisma") {%>
+        ,"prisma": "^5.17.0",
+        "typescript": "^5.5.4",
+        "ts-node": "^10.9.2",
+        "@types/node": "^22.5.4"
+        <% } %>
+    }
 }

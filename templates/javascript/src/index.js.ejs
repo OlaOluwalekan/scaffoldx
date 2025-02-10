@@ -1,28 +1,31 @@
-import express from "express";
-import dotenv from "dotenv";
+import express from 'express';
+import dotenv from 'dotenv';
 dotenv.config();
-import "express-async-errors";
-import connectDB from "./db/connect.js";
-import userRoutes from "./routes/users.routes.js";
-import NotFound from "./middleware/not-found.js";
-import errorHandlerMiddleware from "./middleware/error-handler.js";
-
+import 'express-async-errors';
+<% if (useDatabase && orm === "Mongoose") { %>
+import connectDB from './db/connect.js';
+<% } %>
+import userRoutes from './routes/users.routes.js';
+import NotFound from './middleware/not-found.js';
+import errorHandlerMiddleware from './middleware/error-handler.js';
 const app = express();
-
-app.get("/", (req, res) => {
-  res.send("Hello, World!");
+app.get('/', (req, res) => {
+  res.send('Hello, World!');
 });
 
 // routes middleware
-app.use("/api/v1/users", userRoutes);
+app.use('/api/v1/users', userRoutes);
 
 // error middleware
 app.use(NotFound);
 app.use(errorHandlerMiddleware);
 
 // starting server
-const port = process.env.PORT || <%= port %>;
+const port = process.env.PORT || <%= port %>
+
 app.listen(port, async () => {
-  await connectDB();
-  console.log(`server listening on port ${port}...`);
+  <% if (useDatabase && orm == "Mongoose") {%>
+    await connectDB();
+  <% } %>
+  console.log(`server listening on AppPort ${port}...`);
 });

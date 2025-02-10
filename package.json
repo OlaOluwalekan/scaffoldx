@@ -33,5 +33,9 @@
     "fs-extra": "^11.2.0",
     "inquirer": "^10.2.0",
     "ora": "^8.1.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.5.0",
+    "prettier-plugin-ejs": "^1.0.3"
   }
 }
