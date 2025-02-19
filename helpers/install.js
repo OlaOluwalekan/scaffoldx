@@ -5,12 +5,14 @@ import fs from 'fs';
 import path from 'path';
 
 export const installDependencies = async (cwd, port, appName, orm) => {
+  // show download animation
   const spinner = ora({
     text: chalk.blue('Installing dependencies...'),
     color: 'cyan',
     spinner: 'aesthetic',
   }).start();
 
+  // run npm install to install dependencies
   exec('npm install', { cwd }, (error, stdout, stderr) => {
     if (error) {
       spinner.fail(chalk.red('Error installing dependencies.'));
@@ -18,6 +20,7 @@ export const installDependencies = async (cwd, port, appName, orm) => {
       return;
     }
 
+    // display successful installation message
     spinner.succeed(
       chalk.green(`
         Dependencies installed successfully.
@@ -26,12 +29,15 @@ export const installDependencies = async (cwd, port, appName, orm) => {
         `)
     );
 
+    // check if orm is prisma to initiate prisma
     if (orm === 'Prisma') {
       const prismaSpinner = ora({
         text: chalk.blue('Initializing Prisma...'),
         color: 'cyan',
         spinner: 'aesthetic',
       }).start();
+
+      // run prisma init to initialize prisma
       exec(`npx prisma init`, { cwd: `${cwd}/src` }, (error) => {
         if (error) {
           prismaSpinner.fail(chalk.red('Error initializing Prisma.'));
@@ -39,6 +45,7 @@ export const installDependencies = async (cwd, port, appName, orm) => {
           return;
         }
 
+        // display successful prisma initialization message
         prismaSpinner.succeed(
           chalk.green(`successfully initialized Prisma ORM
 
@@ -46,10 +53,10 @@ export const installDependencies = async (cwd, port, appName, orm) => {
             `)
         );
 
-        // 📌 Move .env file to the root folder
+        // 📌 Move .env and gitignore file to the root folder
         const envSourcePath = path.join(cwd, 'src', '.env');
         const envDestPath = path.join(cwd, '.env');
-        const gitignoreSrcPath = path.join(cwd, 'src', 'gitignore');
+        const gitignoreSrcPath = path.join(cwd, 'src', '.gitignore');
         const gitignoreDestPath = path.join(cwd, '.gitignore');
 
         fs.rename(envSourcePath, envDestPath, (err) => {
