@@ -49,10 +49,17 @@ export const installDependencies = async (cwd, port, appName, orm) => {
         // 📌 Move .env file to the root folder
         const envSourcePath = path.join(cwd, 'src', '.env');
         const envDestPath = path.join(cwd, '.env');
+        const gitignoreSrcPath = path.join(cwd, 'src', 'gitignore');
+        const gitignoreDestPath = path.join(cwd, '.gitignore');
 
         fs.rename(envSourcePath, envDestPath, (err) => {
           if (err) {
             console.error(chalk.red('Error moving .env file:'), err);
+          }
+        });
+        fs.rename(gitignoreSrcPath, gitignoreDestPath, (err) => {
+          if (err) {
+            console.error(chalk.red('Error moving .gitignore file:'), err);
           }
         });
 

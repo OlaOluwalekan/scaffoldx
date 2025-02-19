@@ -44,17 +44,22 @@ const copyTemplates = async (srcDir, destDir, data) => {
           continue;
         }
       }
+      if (data.orm === 'Prisma') {
+        if (file === '.gitignore') {
+          continue;
+        }
+      }
       const content = await fs.readFile(srcPath, 'utf-8');
       const render = ejs.render(content, data);
       await fs.writeFile(destPath, render, 'utf-8');
 
-      if (file !== '.gitignore') {
-        exec(`npx prettier --write "${destPath}"`, (error) => {
-          if (error) {
-            console.error('format error=>', error);
-          }
-        });
-      }
+      // if (file !== '.gitignore') {
+      //   exec(`npx prettier --write "${destPath}"`, (error) => {
+      //     if (error) {
+      //       console.error('format error=>', error);
+      //     }
+      //   });
+      // }
     }
   }
 };
