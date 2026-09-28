@@ -1,7 +1,7 @@
-import inquirer from 'inquirer'
-import fs from 'fs-extra'
-import chalk from 'chalk'
-import path from 'path'
+import inquirer from 'inquirer';
+import fs from 'fs-extra';
+import chalk from 'chalk';
+import path from 'path';
 
 export const collectAppName = async () => {
   // 1. prompt for app name
@@ -10,48 +10,44 @@ export const collectAppName = async () => {
     type: 'input',
     message: 'App name:',
     default: '.',
-  })
+  });
 
   // app name logic to handle creating and clearing of directory
-  let targetDir =
-    appName === '.' ? process.cwd() : path.join(process.cwd(), appName)
+  const targetDir =
+    appName === '.' ? process.cwd() : path.join(process.cwd(), appName);
 
-  // check if app name is . then clear directory if any exists in it (upon users confirmation)
-  if (appName !== '.') {
-    if (fs.existsSync(targetDir)) {
-      // check if the file already exists in the directory
-      console.log(chalk.red(`Directory ${appName} already exists.`))
+  const dirExists = await fs.pathExists(targetDir);
+  const isNonEmpty = dirExists && (await fs.readdir(targetDir)).length > 0;
 
-      const { overwrite } = await inquirer.prompt({
-        name: 'overwrite',
-        type: 'confirm',
-        message: `Do you want to overwrite the existing directory ${appName}?`,
-        default: false,
-      })
-      if (!overwrite) {
-        console.log(chalk.yellow('Operation cancelled.'))
-        process.exit(1)
-      }
-      await fs.remove(targetDir)
+  if (isNonEmpty) {
+    console.log(
+      chalk.yellow(
+        `Target directory ${appName === '.' ? 'current directory' : `"${appName}"`} is not empty.`
+      )
+    );
+
+    const { action } = await inquirer.prompt({
+      name: 'action',
+      type: 'list',
+      message: 'How would you like to proceed?',
+      choices: [
+        'Clear existing content',
+        'Scaffold alongside existing content',
+        'Exit without scaffolding',
+      ],
+      default: 'Clear existing content',
+    });
+
+    if (action === 'Clear existing content') {
+      await fs.emptyDir(targetDir);
+    } else if (action === 'Exit without scaffolding') {
+      console.log(chalk.yellow('Operation cancelled.'));
+      process.exit(0);
     }
-    await fs.mkdir(targetDir)
+    // If 'Scaffold alongside existing content', proceed without emptying
   } else {
-    const files = fs.readdirSync(targetDir)
-    if (files.length > 0) {
-      const { confirmEmpty } = await inquirer.prompt({
-        name: 'confirmEmpty',
-        type: 'confirm',
-        message: `The current directory is not empty. Do you want to clear its contents?`,
-        default: false,
-      })
-      if (confirmEmpty) {
-        await fs.emptyDir(targetDir)
-      } else {
-        console.log(chalk.yellow('Operation cancelled.'))
-        process.exit(1)
-      }
-    }
+    await fs.ensureDir(targetDir);
   }
 
-  return { appName, targetDir }
-}
+  return { appName, targetDir };
+};
