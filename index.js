@@ -11,6 +11,7 @@ import copyTemplates from './helpers/copy.js';
 import { fileURLToPath } from 'url';
 import { installDependencies } from './helpers/install.js';
 import { databaseOptions } from './helpers/database.js';
+import chalk from 'chalk';
 
 // mimic __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -60,5 +61,10 @@ program.parse(process.argv);
   await copyTemplates(templateDir, targetDir, templateData);
 
   // install dependencies
-  await installDependencies(targetDir, port, appName, orm);
+  try {
+    await installDependencies(targetDir, port, appName, orm);
+  } catch (error) {
+    console.error(chalk.red('\nFailed to install dependencies:'), error.message || error);
+    process.exit(1);
+  }
 })();

@@ -22,13 +22,16 @@ export const collectAppName = async () => {
       // check if the file already exists in the directory
       console.log(chalk.red(`Directory ${appName} already exists.`))
 
-      const { overwrite } = inquirer.prompt({
+      const { overwrite } = await inquirer.prompt({
         name: 'overwrite',
         type: 'confirm',
         message: `Do you want to overwrite the existing directory ${appName}?`,
         default: false,
       })
-      if (!overwrite) process.exit(1)
+      if (!overwrite) {
+        console.log(chalk.yellow('Operation cancelled.'))
+        process.exit(1)
+      }
       await fs.remove(targetDir)
     }
     await fs.mkdir(targetDir)

@@ -13,35 +13,40 @@ export const installDependencies = async (cwd, port, appName, orm) => {
   }).start();
 
   // run npm install to install dependencies
-  exec('npm install', { cwd }, (error, stdout, stderr) => {
-    if (error) {
-      spinner.fail(chalk.red('Error installing dependencies.'));
-      console.error(error);
-      return;
-    }
+  await new Promise((resolve, reject) => {
+    exec('npm install', { cwd }, (error, stdout, stderr) => {
+      if (error) {
+        spinner.fail(chalk.red('Error installing dependencies.'));
+        reject(error);
+        return;
+      }
 
-    // display successful installation message
-    spinner.succeed(
-      chalk.green(`
+      // display successful installation message
+      spinner.succeed(
+        chalk.green(`
         Dependencies installed successfully.
 
         You have successfully scaffold an express server
         `)
-    );
+      );
+      resolve();
+    });
+  });
 
-    // check if orm is prisma to initiate prisma
-    if (orm === 'Prisma') {
-      const prismaSpinner = ora({
-        text: chalk.blue('Initializing Prisma...'),
-        color: 'cyan',
-        spinner: 'aesthetic',
-      }).start();
+  // check if orm is prisma to initiate prisma
+  if (orm === 'Prisma') {
+    const prismaSpinner = ora({
+      text: chalk.blue('Initializing Prisma...'),
+      color: 'cyan',
+      spinner: 'aesthetic',
+    }).start();
 
-      // run prisma init to initialize prisma
-      exec(`npx prisma init`, { cwd: `${cwd}/src` }, (error) => {
+    // run prisma init to initialize prisma
+    await new Promise((resolve, reject) => {
+      exec(`npx prisma init`, { cwd: `${cwd}/src` }, async (error) => {
         if (error) {
           prismaSpinner.fail(chalk.red('Error initializing Prisma.'));
-          console.error(error);
+          reject(error);
           return;
         }
 
@@ -53,62 +58,54 @@ export const installDependencies = async (cwd, port, appName, orm) => {
             `)
         );
 
-        // 📌 Move .env and gitignore file to the root folder
-        const envSourcePath = path.join(cwd, 'src', '.env');
-        const envDestPath = path.join(cwd, '.env');
-        const gitignoreSrcPath = path.join(cwd, 'src', '.gitignore');
-        const gitignoreDestPath = path.join(cwd, '.gitignore');
+        try {
+          // 📌 Move .env and gitignore file to the root folder
+          const envSourcePath = path.join(cwd, 'src', '.env');
+          const envDestPath = path.join(cwd, '.env');
+          const gitignoreSrcPath = path.join(cwd, 'src', '.gitignore');
+          const gitignoreDestPath = path.join(cwd, '.gitignore');
 
-        fs.rename(envSourcePath, envDestPath, (err) => {
-          if (err) {
-            console.error(chalk.red('Error moving .env file:'), err);
-          }
-        });
-        fs.rename(gitignoreSrcPath, gitignoreDestPath, (err) => {
-          if (err) {
-            console.error(chalk.red('Error moving .gitignore file:'), err);
-          }
-        });
+          await fs.promises.rename(envSourcePath, envDestPath);
+          await fs.promises.rename(gitignoreSrcPath, gitignoreDestPath);
 
-        const schemaPath = path.join(cwd, 'src', 'prisma', 'schema.prisma');
+          const schemaPath = path.join(cwd, 'src', 'prisma', 'schema.prisma');
 
-        // 📌 Prisma User Model
-        const userModel = `
-          model User {
-            id          String   @id @default(uuid())
-            username    String   @unique
-            profilePic  String   @default("")
-            createdAt   DateTime @default(now())
-          }`;
+          // 📌 Prisma User Model
+          const userModel = `
+model User {
+  id          String   @id @default(uuid())
+  username    String   @unique
+  profilePic  String   @default("")
+  createdAt   DateTime @default(now())
+}`;
 
-        fs.appendFile(schemaPath, userModel, (err) => {
-          if (err) {
-            console.error(chalk.red('Error updating schema.prisma'), err);
-          } else {
-            console.log(chalk.green('✅ User model added to schema.prisma'));
-          }
-        });
-      });
-    }
-
-    console.log(
-      chalk.yellow(`
-        ${
-          orm !== null
-            ? `open ${chalk.green('.env')} file and replace ${chalk.green(
-                orm === 'Mongoose'
-                  ? 'MONGO_URI=mongodb://localhost:27017/'
-                  : "DATABASE_URL='postgresql://johndoe:randompassword@localhost:5432/mydb?schema=public'"
-              )} with your actual database uri`
-            : ''
+          await fs.promises.appendFile(schemaPath, userModel);
+          console.log(chalk.green('✅ User model added to schema.prisma'));
+          resolve();
+        } catch (err) {
+          reject(err);
         }
+      });
+    });
+  }
 
-        ${appName !== '.' ? `cd ./${appName}` : ''}
+  console.log(
+    chalk.yellow(`
+      ${
+        orm !== null
+          ? `open ${chalk.green('.env')} file and replace ${chalk.green(
+              orm === 'Mongoose'
+                ? 'MONGO_URI=mongodb://localhost:27017/'
+                : "DATABASE_URL='postgresql://johndoe:randompassword@localhost:5432/mydb?schema=public'"
+            )} with your actual database uri`
+          : ''
+      }
 
-        start your dev server using ${chalk.green('npm run dev')}
+      ${appName !== '.' ? `cd ./${appName}` : ''}
 
-        open ${chalk.green(`http://localhost:${port}`)} in your browser
-        `)
-    );
-  });
+      start your dev server using ${chalk.green('npm run dev')}
+
+      open ${chalk.green(`http://localhost:${port}`)} in your browser
+      `)
+  );
 };
