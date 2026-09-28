@@ -4,19 +4,49 @@ import ora from 'ora';
 import fs from 'fs';
 import path from 'path';
 
-export const installDependencies = async (cwd, port, appName, orm) => {
+const INSTALL_COMMANDS = {
+  npm: 'npm install',
+  pnpm: 'pnpm install',
+  yarn: 'yarn install',
+  bun: 'bun install',
+};
+
+const DEV_COMMANDS = {
+  npm: 'npm run dev',
+  pnpm: 'pnpm dev',
+  yarn: 'yarn dev',
+  bun: 'bun run dev',
+};
+
+export const installDependencies = async (
+  cwd,
+  port,
+  appName,
+  orm,
+  packageManager = 'npm'
+) => {
+  const installCmd = INSTALL_COMMANDS[packageManager] || 'npm install';
+  const devCmd = DEV_COMMANDS[packageManager] || 'npm run dev';
+
   // show download animation
   const spinner = ora({
-    text: chalk.blue('Installing dependencies...'),
+    text: chalk.blue(`Installing dependencies with ${packageManager}...`),
     color: 'cyan',
     spinner: 'aesthetic',
   }).start();
 
-  // run npm install to install dependencies
+  // run package manager install to install dependencies
   await new Promise((resolve, reject) => {
-    exec('npm install', { cwd }, (error, stdout, stderr) => {
+    exec(installCmd, { cwd }, (error, stdout, stderr) => {
       if (error) {
-        spinner.fail(chalk.red('Error installing dependencies.'));
+        spinner.fail(chalk.red(`Error installing dependencies with ${packageManager}.`));
+        if (error.code === 'ENOENT' || (error.message && error.message.includes('not recognized'))) {
+          console.error(
+            chalk.yellow(
+              `\n${packageManager} does not seem to be installed on your system. Please install ${packageManager} or use another package manager.`
+            )
+          );
+        }
         reject(error);
         return;
       }
@@ -103,7 +133,7 @@ model User {
 
       ${appName !== '.' ? `cd ./${appName}` : ''}
 
-      start your dev server using ${chalk.green('npm run dev')}
+      start your dev server using ${chalk.green(devCmd)}
 
       open ${chalk.green(`http://localhost:${port}`)} in your browser
       `)

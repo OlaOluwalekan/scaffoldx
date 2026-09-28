@@ -11,6 +11,10 @@ import copyTemplates from './helpers/copy.js';
 import { fileURLToPath } from 'url';
 import { installDependencies } from './helpers/install.js';
 import { databaseOptions } from './helpers/database.js';
+import {
+  detectPackageManager,
+  collectPackageManager,
+} from './helpers/packageManager.js';
 import chalk from 'chalk';
 
 // mimic __dirname in ESM
@@ -28,26 +32,31 @@ program.parse(process.argv);
   // 1. app name prompt and logic
   const { appName, targetDir } = await collectAppName();
 
-  // 2. Choose JavaScript or TypeScript
+  // 2. Select package manager
+  const detectedPM = detectPackageManager();
+  const packageManager = await collectPackageManager(detectedPM);
+
+  // 3. Choose JavaScript or TypeScript
   const language = await languageSelect();
 
-  // 3. Entry Point
+  // 4. Entry Point
   const entryPoint = await collectEntryFile(language);
 
-  // 4. Output Folder (for TypeScript)
+  // 5. Output Folder (for TypeScript)
   let outputFolder = '';
   if (language === 'TypeScript') {
     outputFolder = await collectOutputFolder();
   }
 
-  // 5. use database?
+  // 6. use database?
   const { useDatabase, orm } = await databaseOptions();
 
-  // 6. Port Number
+  // 7. Port Number
   const port = await collectServerPort();
 
   const templateData = {
     appName: appName === '.' ? path.basename(process.cwd()) : appName,
+    packageManager,
     language,
     entryPoint,
     outputFolder,
@@ -62,7 +71,7 @@ program.parse(process.argv);
 
   // install dependencies
   try {
-    await installDependencies(targetDir, port, appName, orm);
+    await installDependencies(targetDir, port, appName, orm, packageManager);
   } catch (error) {
     console.error(chalk.red('\nFailed to install dependencies:'), error.message || error);
     process.exit(1);
