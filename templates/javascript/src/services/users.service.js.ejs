@@ -1,0 +1,18 @@
+<% if (useDatabase && orm === "Mongoose") { %>
+import User from '../models/User.model.js';
+<% } %>
+<% if (useDatabase && orm === "Prisma") { %>
+import db from '../db/connect.js';
+<% } %>
+
+export const getUsers = async () => {
+<% if (useDatabase && orm === "Mongoose") { %>
+  const users = await User.find({});
+  return users;
+<% } else if (useDatabase && orm === "Prisma") { %>
+  const users = await db.user.findMany({});
+  return users;
+<% } else { %>
+  return [];
+<% } %>
+};

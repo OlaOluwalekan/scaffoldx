@@ -1,18 +1,8 @@
 import { StatusCodes } from 'http-status-codes';
-<% if (useDatabase && orm === "Mongoose") { %>
-import User from '../models/User.model.js';
-<% } %>
-<% if (useDatabase && orm === "Prisma") { %>
-import db from '../db/connect.js';
-<% } %>
 import { Request, Response } from 'express';
+import * as usersService from '../services/users.service.js';
 
 export const getUsers = async (req: Request, res: Response) => {
-  <% if (useDatabase && orm === "Mongoose") { %>
-    const users = await User.find({});
-  <% } %>
-  <% if (useDatabase && orm === "Prisma") { %>
-    const users = await db.user.findMany({})
-  <% } %>
-  res.status(StatusCodes.OK).json(<% if (useDatabase) {%>users<% } else { %> {users: []} <% } %>);
+  const users = await usersService.getUsers();
+  res.status(StatusCodes.OK).json(<% if (useDatabase) { %>users<% } else { %>{ users }<% } %>);
 };
