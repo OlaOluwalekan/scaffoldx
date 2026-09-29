@@ -40,8 +40,13 @@ export const installDependencies = async (
   await new Promise((resolve, reject) => {
     exec(installCmd, { cwd }, (error, stdout, stderr) => {
       if (error) {
-        spinner.fail(chalk.red(`Error installing dependencies with ${packageManager}.`));
-        if (error.code === 'ENOENT' || (error.message && error.message.includes('not recognized'))) {
+        spinner.fail(
+          chalk.red(`Error installing dependencies with ${packageManager}.`)
+        );
+        if (
+          error.code === 'ENOENT' ||
+          (error.message && error.message.includes('not recognized'))
+        ) {
           console.error(
             chalk.yellow(
               `\n${packageManager} does not seem to be installed on your system. Please install ${packageManager} or use another package manager.`
@@ -171,7 +176,11 @@ model User {
             }
 
             await fs.promises.writeFile(schemaPath, schemaContent, 'utf-8');
-            console.log(chalk.green('✅ Configured schema.prisma generator client and User model'));
+            console.log(
+              chalk.green(
+                '✅ Configured schema.prisma generator client and User model'
+              )
+            );
           }
 
           resolve();
@@ -199,8 +208,8 @@ model User {
               orm === 'Mongoose'
                 ? `MONGO_URI=${mongoDbUrl}`
                 : databaseType === 'Postgres'
-                ? `DATABASE_URL='${postgresDbUrl}'`
-                : `DATABASE_URL='${mongoDbUrl}'`
+                  ? `DATABASE_URL='${postgresDbUrl}'`
+                  : `DATABASE_URL='${mongoDbUrl}'`
             )} with your actual database uri`
           : ''
       }
