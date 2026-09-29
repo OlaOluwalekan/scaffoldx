@@ -117,8 +117,8 @@ export const installDependencies = async (
             let envContent = await fs.promises.readFile(envDestPath, 'utf-8');
             const targetUrl =
               databaseType === 'MongoDB'
-                ? 'mongodb://admin:secret_password@localhost:27017/myPrismaDB?authSource=admin&replicaSet=rs0'
-                : 'postgresql://postgres:password@localhost:5432/mydb?schema=public';
+                ? `mongodb://admin:secret_password@localhost:27017/${appName}_dev?authSource=admin&replicaSet=rs0`
+                : `postgresql://postgres:postgres@localhost:5432/${appName}_dev?schema=public`;
             if (/DATABASE_URL=/.test(envContent)) {
               envContent = envContent.replace(
                 /DATABASE_URL=.*(\r?\n|$)/,
@@ -191,10 +191,8 @@ model User {
     });
   }
 
-  const postgresDbUrl =
-    'postgresql://postgres:password@localhost:5432/mydb?schema=public';
-  const mongoDbUrl =
-    'mongodb://admin:secret_password@localhost:27017/myPrismaDB?authSource=admin&replicaSet=rs0';
+  const postgresDbUrl = `postgresql://postgres:postgres@localhost:5432/${appName}_dev?schema=public`;
+  const mongoDbUrl = `mongodb://admin:secret_password@localhost:27017/${appName}_dev?authSource=admin&replicaSet=rs0`;
 
   console.log(
     chalk.yellow(`
