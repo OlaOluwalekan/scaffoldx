@@ -29,6 +29,10 @@
     <% } %>
     <% if (useDatabase && orm == "Prisma") {%>
     ,"@prisma/client": "<%= databaseType === 'Postgres' ? '^7.10.0' : '^5.17.0' %>"
+    <% if (databaseType === 'Postgres') { %>
+    ,"@prisma/adapter-pg": "^7.10.0",
+    "pg": "^8.23.0"
+    <% } %>
     <% } %>
   },
   "devDependencies": {
@@ -40,6 +44,9 @@
     <% if (useDatabase && orm == "Prisma") {%>
     ,"prisma": "<%= databaseType === 'Postgres' ? '^7.10.0' : '^5.17.0' %>",
     "ts-node": "^10.9.2"
+    <% if (databaseType === 'Postgres') { %>
+    ,"@types/pg": "^8.23.1"
+    <% } %>
     <% } %>
   }
 }

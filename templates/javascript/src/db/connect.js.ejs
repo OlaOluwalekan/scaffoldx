@@ -15,11 +15,20 @@ export default connectDB;
 
 <% if (useDatabase && orm == "Prisma") {%>
 <% if (databaseType === 'Postgres') { %>
-import { PrismaClient } from '../generated/prisma/index.js';
+import 'dotenv/config';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../generated/prisma/client.js';
+
+const connectionString = `${process.env.DATABASE_URL}`;
+
+const adapter = new PrismaPg({ connectionString });
+const db = new PrismaClient({ adapter });
+
+export default db;
 <% } else { %>
 import { PrismaClient } from '@prisma/client';
-<% } %>
 const db = new PrismaClient();
 
 export default db;
+<% } %>
 <% } %>

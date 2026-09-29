@@ -108,6 +108,16 @@ export const installDependencies = async (
             await fs.promises.rename(gitignoreSrcPath, gitignoreDestPath);
           }
 
+          // Remove any duplicate config generated in src by prisma init
+          const srcPrisma7Config = path.join(cwd, 'src', 'prisma7.config.ts');
+          const srcPrismaConfig = path.join(cwd, 'src', 'prisma.config.ts');
+          if (fs.existsSync(srcPrisma7Config)) {
+            await fs.promises.unlink(srcPrisma7Config);
+          }
+          if (fs.existsSync(srcPrismaConfig)) {
+            await fs.promises.unlink(srcPrismaConfig);
+          }
+
           const schemaPath = path.join(cwd, 'src', 'prisma', 'schema.prisma');
 
           if (databaseType === 'Postgres') {
