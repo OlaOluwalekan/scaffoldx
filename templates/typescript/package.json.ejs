@@ -28,7 +28,7 @@
     ,"mongoose": "^8.6.1"
     <% } %>
     <% if (useDatabase && orm == "Prisma") {%>
-    ,"@prisma/client": "^5.17.0"
+    ,"@prisma/client": "<%= databaseType === 'Postgres' ? '^7.10.0' : '^5.17.0' %>"
     <% } %>
   },
   "devDependencies": {
@@ -38,7 +38,7 @@
     "nodemon": "^3.1.4",
     "typescript": "^5.5.4"
     <% if (useDatabase && orm == "Prisma") {%>
-    ,"prisma": "^5.17.0",
+    ,"prisma": "<%= databaseType === 'Postgres' ? '^7.10.0' : '^5.17.0' %>",
     "ts-node": "^10.9.2"
     <% } %>
   }

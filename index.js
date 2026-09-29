@@ -72,7 +72,14 @@ program.parse(process.argv);
 
   // install dependencies
   try {
-    await installDependencies(targetDir, port, appName, orm, packageManager);
+    await installDependencies(
+      targetDir,
+      port,
+      appName,
+      orm,
+      packageManager,
+      databaseType
+    );
   } catch (error) {
     console.error(chalk.red('\nFailed to install dependencies:'), error.message || error);
     process.exit(1);

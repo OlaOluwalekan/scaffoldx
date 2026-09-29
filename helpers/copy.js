@@ -7,7 +7,6 @@ const copyTemplates = async (srcDir, destDir, data) => {
   const files = await fs.readdir(srcDir);
 
   for (const file of files) {
-    // get the destination path - i.e. what will eventually be in the scaffolded app
     const srcPath = path.join(srcDir, file);
 
     let destinationFileName = file.includes('index')
@@ -17,14 +16,11 @@ const copyTemplates = async (srcDir, destDir, data) => {
       destDir,
       destinationFileName.replace('.ejs', '')
     );
-    // console.log('destination', file)
 
-    // get the info of the current file/folder
     const stats = await fs.stat(srcPath);
 
-    // check if it's a folder and then recursively call copyTemplates
     if (stats.isDirectory()) {
-      if (file == 'db') {
+      if (file === 'db') {
         if (data.useDatabase) {
           await fs.mkdir(destPath);
           await copyTemplates(srcPath, destPath, data);
@@ -39,7 +35,7 @@ const copyTemplates = async (srcDir, destDir, data) => {
         await copyTemplates(srcPath, destPath, data);
       }
     } else {
-      if (data.language === 'Javascript') {
+      if (data.language && data.language.toLowerCase() === 'javascript') {
         if (file === 'nodemon.json' || file === 'tsconfig.json') {
           continue;
         }
@@ -49,17 +45,40 @@ const copyTemplates = async (srcDir, destDir, data) => {
           continue;
         }
       }
+
+      if (file === 'docker-compose.postgres.yml.ejs') {
+        if (data.databaseType === 'Postgres') {
+          const destFile = path.join(destDir, 'docker-compose.yml');
+          const content = await fs.readFile(srcPath, 'utf-8');
+          const render = ejs.render(content, data);
+          await fs.writeFile(destFile, render, 'utf-8');
+        }
+        continue;
+      }
+
+      if (file === 'docker-compose.mongo.yml.ejs') {
+        if (data.databaseType === 'MongoDB') {
+          const destFile = path.join(destDir, 'docker-compose.yml');
+          const content = await fs.readFile(srcPath, 'utf-8');
+          const render = ejs.render(content, data);
+          await fs.writeFile(destFile, render, 'utf-8');
+        }
+        continue;
+      }
+
+      if (file === 'prisma.config.ts.ejs') {
+        if (data.databaseType === 'Postgres' && data.orm === 'Prisma') {
+          const destFile = path.join(destDir, 'prisma.config.ts');
+          const content = await fs.readFile(srcPath, 'utf-8');
+          const render = ejs.render(content, data);
+          await fs.writeFile(destFile, render, 'utf-8');
+        }
+        continue;
+      }
+
       const content = await fs.readFile(srcPath, 'utf-8');
       const render = ejs.render(content, data);
       await fs.writeFile(destPath, render, 'utf-8');
-
-      // if (file !== '.gitignore') {
-      //   exec(`npx prettier --write "${destPath}"`, (error) => {
-      //     if (error) {
-      //       console.error('format error=>', error);
-      //     }
-      //   });
-      // }
     }
   }
 };

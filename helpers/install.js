@@ -23,7 +23,8 @@ export const installDependencies = async (
   port,
   appName,
   orm,
-  packageManager = 'npm'
+  packageManager = 'npm',
+  databaseType = null
 ) => {
   const installCmd = INSTALL_COMMANDS[packageManager] || 'npm install';
   const devCmd = DEV_COMMANDS[packageManager] || 'npm run dev';
@@ -71,9 +72,14 @@ export const installDependencies = async (
       spinner: 'aesthetic',
     }).start();
 
+    const initCmd =
+      databaseType === 'Postgres'
+        ? 'npx prisma init --datasource-provider postgresql'
+        : 'npx prisma init';
+
     // run prisma init to initialize prisma
     await new Promise((resolve, reject) => {
-      exec(`npx prisma init`, { cwd: `${cwd}/src` }, async (error) => {
+      exec(initCmd, { cwd: `${cwd}/src` }, async (error) => {
         if (error) {
           prismaSpinner.fail(chalk.red('Error initializing Prisma.'));
           reject(error);
@@ -95,13 +101,25 @@ export const installDependencies = async (
           const gitignoreSrcPath = path.join(cwd, 'src', '.gitignore');
           const gitignoreDestPath = path.join(cwd, '.gitignore');
 
-          await fs.promises.rename(envSourcePath, envDestPath);
-          await fs.promises.rename(gitignoreSrcPath, gitignoreDestPath);
+          if (fs.existsSync(envSourcePath)) {
+            await fs.promises.rename(envSourcePath, envDestPath);
+          }
+          if (fs.existsSync(gitignoreSrcPath)) {
+            await fs.promises.rename(gitignoreSrcPath, gitignoreDestPath);
+          }
 
           const schemaPath = path.join(cwd, 'src', 'prisma', 'schema.prisma');
 
-          // 📌 Prisma User Model
-          const userModel = `
+          if (databaseType === 'Postgres') {
+            // Postgres path: edit generator to prisma-client and explicit output
+            let schemaContent = await fs.promises.readFile(schemaPath, 'utf-8');
+
+            schemaContent = schemaContent.replace(
+              /generator\s+client\s*\{[\s\S]*?\}/,
+              `generator client {\n  provider = "prisma-client"\n  output   = "../generated/prisma"\n}`
+            );
+
+            const userModel = `
 model User {
   id          String   @id @default(uuid())
   username    String   @unique
@@ -109,8 +127,26 @@ model User {
   createdAt   DateTime @default(now())
 }`;
 
-          await fs.promises.appendFile(schemaPath, userModel);
-          console.log(chalk.green('✅ User model added to schema.prisma'));
+            if (!schemaContent.includes('model User')) {
+              schemaContent += '\n' + userModel;
+            }
+
+            await fs.promises.writeFile(schemaPath, schemaContent, 'utf-8');
+            console.log(chalk.green('✅ Configured schema.prisma for Prisma v7 and added User model'));
+          } else {
+            // Mongo path (unchanged for Step 5)
+            const userModel = `
+model User {
+  id          String   @id @default(uuid())
+  username    String   @unique
+  profilePic  String   @default("")
+  createdAt   DateTime @default(now())
+}`;
+
+            await fs.promises.appendFile(schemaPath, userModel);
+            console.log(chalk.green('✅ User model added to schema.prisma'));
+          }
+
           resolve();
         } catch (err) {
           reject(err);
@@ -119,15 +155,29 @@ model User {
     });
   }
 
+  const postgresDbUrl =
+    'postgresql://postgres:password@localhost:5432/mydb?schema=public';
+
   console.log(
     chalk.yellow(`
       ${
+        databaseType === 'Postgres'
+          ? `start your database container using ${chalk.green('docker compose up -d')}\n`
+          : ''
+      }${
         orm !== null
           ? `open ${chalk.green('.env')} file and replace ${chalk.green(
               orm === 'Mongoose'
                 ? 'MONGO_URI=mongodb://localhost:27017/'
+                : databaseType === 'Postgres'
+                ? `DATABASE_URL='${postgresDbUrl}'`
                 : "DATABASE_URL='postgresql://johndoe:randompassword@localhost:5432/mydb?schema=public'"
             )} with your actual database uri`
+          : ''
+      }
+      ${
+        orm === 'Prisma'
+          ? `\n      generate your Prisma client using ${chalk.green('npx prisma generate')}`
           : ''
       }
 
