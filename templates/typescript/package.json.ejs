@@ -28,7 +28,7 @@
     ,"mongoose": "^8.6.1"
     <% } %>
     <% if (useDatabase && orm == "Prisma") {%>
-    ,"@prisma/client": "<%= databaseType === 'Postgres' ? '^7.10.0' : '^5.17.0' %>"
+    ,"@prisma/client": "<%= databaseType === 'Postgres' ? '^7.10.0' : '^6.19.3' %>"
     <% if (databaseType === 'Postgres') { %>
     ,"@prisma/adapter-pg": "^7.10.0",
     "pg": "^8.23.0"
@@ -42,7 +42,7 @@
     "nodemon": "^3.1.4",
     "typescript": "^5.5.4"
     <% if (useDatabase && orm == "Prisma") {%>
-    ,"prisma": "<%= databaseType === 'Postgres' ? '^7.10.0' : '^5.17.0' %>",
+    ,"prisma": "<%= databaseType === 'Postgres' ? '^7.10.0' : '^6.19.3' %>",
     "ts-node": "^10.9.2"
     <% if (databaseType === 'Postgres') { %>
     ,"@types/pg": "^8.23.1"

@@ -75,7 +75,7 @@ export const installDependencies = async (
     const initCmd =
       databaseType === 'Postgres'
         ? 'npx prisma init --datasource-provider postgresql'
-        : 'npx prisma init';
+        : 'npx prisma init --datasource-provider mongodb';
 
     // run prisma init to initialize prisma
     await new Promise((resolve, reject) => {
@@ -144,10 +144,10 @@ model User {
             await fs.promises.writeFile(schemaPath, schemaContent, 'utf-8');
             console.log(chalk.green('✅ Configured schema.prisma for Prisma v7 and added User model'));
           } else {
-            // Mongo path (unchanged for Step 5)
+            // Mongo path: append Mongo-correct User model
             const userModel = `
 model User {
-  id          String   @id @default(uuid())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   username    String   @unique
   profilePic  String   @default("")
   createdAt   DateTime @default(now())
@@ -167,21 +167,22 @@ model User {
 
   const postgresDbUrl =
     'postgresql://postgres:password@localhost:5432/mydb?schema=public';
+  const mongoDbUrl = 'mongodb://localhost:27017/mydb';
 
   console.log(
     chalk.yellow(`
       ${
-        databaseType === 'Postgres'
+        databaseType !== null
           ? `start your database container using ${chalk.green('docker compose up -d')}\n`
           : ''
       }${
         orm !== null
           ? `open ${chalk.green('.env')} file and replace ${chalk.green(
               orm === 'Mongoose'
-                ? 'MONGO_URI=mongodb://localhost:27017/'
+                ? `MONGO_URI=${mongoDbUrl}`
                 : databaseType === 'Postgres'
                 ? `DATABASE_URL='${postgresDbUrl}'`
-                : "DATABASE_URL='postgresql://johndoe:randompassword@localhost:5432/mydb?schema=public'"
+                : `DATABASE_URL='${mongoDbUrl}'`
             )} with your actual database uri`
           : ''
       }
