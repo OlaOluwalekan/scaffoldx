@@ -49,7 +49,7 @@ program.parse(process.argv);
   }
 
   // 6. use database?
-  const { useDatabase, orm } = await databaseOptions();
+  const { useDatabase, databaseType, orm } = await databaseOptions();
 
   // 7. Port Number
   const port = await collectServerPort();
@@ -62,6 +62,7 @@ program.parse(process.argv);
     outputFolder,
     port,
     useDatabase,
+    databaseType,
     orm,
   };
 
