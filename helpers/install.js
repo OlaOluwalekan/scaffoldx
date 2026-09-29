@@ -108,6 +108,23 @@ export const installDependencies = async (
             await fs.promises.rename(gitignoreSrcPath, gitignoreDestPath);
           }
 
+          if (fs.existsSync(envDestPath)) {
+            let envContent = await fs.promises.readFile(envDestPath, 'utf-8');
+            const targetUrl =
+              databaseType === 'MongoDB'
+                ? 'mongodb://admin:secret_password@localhost:27017/myPrismaDB?authSource=admin&replicaSet=rs0'
+                : 'postgresql://postgres:password@localhost:5432/mydb?schema=public';
+            if (/DATABASE_URL=/.test(envContent)) {
+              envContent = envContent.replace(
+                /DATABASE_URL=.*(\r?\n|$)/,
+                `DATABASE_URL="${targetUrl}"$1`
+              );
+            } else {
+              envContent += `DATABASE_URL="${targetUrl}"\n`;
+            }
+            await fs.promises.writeFile(envDestPath, envContent, 'utf-8');
+          }
+
           // Remove any duplicate config generated in src by prisma init
           const srcPrisma7Config = path.join(cwd, 'src', 'prisma7.config.ts');
           const srcPrismaConfig = path.join(cwd, 'src', 'prisma.config.ts');
@@ -119,9 +136,7 @@ export const installDependencies = async (
           }
 
           const schemaPath = path.join(cwd, 'src', 'prisma', 'schema.prisma');
-
-          if (databaseType === 'Postgres') {
-            // Postgres path: edit generator to prisma-client and explicit output
+          if (fs.existsSync(schemaPath)) {
             let schemaContent = await fs.promises.readFile(schemaPath, 'utf-8');
 
             schemaContent = schemaContent.replace(
@@ -129,7 +144,8 @@ export const installDependencies = async (
               `generator client {\n  provider = "prisma-client"\n  output   = "../generated/prisma"\n}`
             );
 
-            const userModel = `
+            if (databaseType === 'Postgres') {
+              const userModel = `
 model User {
   id          String   @id @default(uuid())
   username    String   @unique
@@ -137,15 +153,11 @@ model User {
   createdAt   DateTime @default(now())
 }`;
 
-            if (!schemaContent.includes('model User')) {
-              schemaContent += '\n' + userModel;
-            }
-
-            await fs.promises.writeFile(schemaPath, schemaContent, 'utf-8');
-            console.log(chalk.green('✅ Configured schema.prisma for Prisma v7 and added User model'));
-          } else {
-            // Mongo path: append Mongo-correct User model
-            const userModel = `
+              if (!schemaContent.includes('model User')) {
+                schemaContent += '\n' + userModel;
+              }
+            } else {
+              const userModel = `
 model User {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   username    String   @unique
@@ -153,8 +165,13 @@ model User {
   createdAt   DateTime @default(now())
 }`;
 
-            await fs.promises.appendFile(schemaPath, userModel);
-            console.log(chalk.green('✅ User model added to schema.prisma'));
+              if (!schemaContent.includes('model User')) {
+                schemaContent += '\n' + userModel;
+              }
+            }
+
+            await fs.promises.writeFile(schemaPath, schemaContent, 'utf-8');
+            console.log(chalk.green('✅ Configured schema.prisma generator client and User model'));
           }
 
           resolve();
@@ -167,7 +184,8 @@ model User {
 
   const postgresDbUrl =
     'postgresql://postgres:password@localhost:5432/mydb?schema=public';
-  const mongoDbUrl = 'mongodb://localhost:27017/mydb';
+  const mongoDbUrl =
+    'mongodb://admin:secret_password@localhost:27017/myPrismaDB?authSource=admin&replicaSet=rs0';
 
   console.log(
     chalk.yellow(`

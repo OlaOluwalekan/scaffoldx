@@ -67,7 +67,7 @@ const copyTemplates = async (srcDir, destDir, data) => {
       }
 
       if (file === 'prisma.config.ts.ejs') {
-        if (data.databaseType === 'Postgres' && data.orm === 'Prisma') {
+        if (data.orm === 'Prisma') {
           const destFile = path.join(destDir, 'prisma.config.ts');
           const content = await fs.readFile(srcPath, 'utf-8');
           const render = ejs.render(content, data);

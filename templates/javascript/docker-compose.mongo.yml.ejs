@@ -1,16 +1,57 @@
-version: '3.8'
-
 services:
+  mongo-keyfile-init:
+    image: mongo:7
+    user: '0:0'
+    entrypoint: ['/bin/bash', '-ec']
+    command:
+      - |
+        if [ ! -s /keyfile/keyfile ]; then
+          openssl rand -base64 756 > /keyfile/keyfile
+        fi
+        chown 999:999 /keyfile/keyfile
+        chmod 400 /keyfile/keyfile
+    volumes:
+      - mongo_keyfile:/keyfile
+
   mongo:
     image: mongo:7
     container_name: <%= appName %>-mongo
-    restart: always
+    restart: unless-stopped
+    depends_on:
+      mongo-keyfile-init:
+        condition: service_completed_successfully
     ports:
       - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: secret_password
     volumes:
       - mongo_data:/data/db
-    # Note: For local development, authentication is disabled.
-    # For production, enable authentication and configure credentials.
+      - mongo_keyfile:/etc/mongo-keyfile:ro
+    command:
+      [
+        '--replSet',
+        'rs0',
+        '--bind_ip_all',
+        '--keyFile',
+        '/etc/mongo-keyfile/keyfile',
+      ]
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test -u admin -p secret_password --authenticationDatabase admin --quiet
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Automated helper to initialize the replica set using your credentials
+  mongo-init:
+    image: mongo:7
+    depends_on:
+      mongo:
+        condition: service_healthy
+    entrypoint: >
+      mongosh --host mongo:27017 -u admin -p secret_password --authenticationDatabase admin --eval 
+      "try { rs.status().ok } catch (e) { rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]}) }"
 
 volumes:
   mongo_data:
+  mongo_keyfile:

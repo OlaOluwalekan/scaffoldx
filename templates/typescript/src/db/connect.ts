@@ -26,7 +26,9 @@ const db = new PrismaClient({ adapter });
 
 export default db;
 <% } else { %>
-import { PrismaClient } from '@prisma/client';
+import 'dotenv/config';
+import { PrismaClient } from '../generated/prisma/client.js';
+
 const db = new PrismaClient();
 
 export default db;
