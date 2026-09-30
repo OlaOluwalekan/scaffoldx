@@ -5,6 +5,7 @@ dotenv.config();
 
 const env = cleanEnv(process.env, {
   PORT: port({ default: <%= port %> }),
+  CORS_ORIGIN: str({ default: '*', desc: 'Allowed CORS origin(s)' }),
 <% if (useDatabase && orm === "Mongoose") { %>
   MONGO_URI: str({ desc: 'MongoDB connection string' }),
 <% } %>
@@ -15,6 +16,7 @@ const env = cleanEnv(process.env, {
 
 export const config = {
   port: env.PORT,
+  corsOrigin: env.CORS_ORIGIN,
 <% if (useDatabase && orm === "Mongoose") { %>
   mongoUri: env.MONGO_URI,
 <% } %>

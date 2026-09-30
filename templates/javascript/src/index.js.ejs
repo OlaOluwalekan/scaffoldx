@@ -19,7 +19,13 @@ import errorHandlerMiddleware from './middleware/error-handler.js';
 const app = express();
 
 securityMiddleware(app);
-app.use(cors());
+const corsOptions = {
+  origin:
+    config.corsOrigin === '*'
+      ? '*'
+      : config.corsOrigin.split(',').map((o) => o.trim()),
+};
+app.use(cors(corsOptions));
 app.use(morgan('dev'));
 app.use(express.json());
 
