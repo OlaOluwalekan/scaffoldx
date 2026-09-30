@@ -58,41 +58,46 @@ app.use(errorHandlerMiddleware);
 // starting server
 const port = config.port;
 
-const server = app.listen(port, async () => {
-  <% if (useDatabase && orm == "Mongoose") {%>
-    await connectDB();
-  <% } %>
-  console.log(`server listening on AppPort ${port}...`);
-});
-
-const shutdown = async (signal) => {
-  console.log(`Received ${signal}. Shutting down gracefully...`);
-  server.close(async () => {
-    console.log('HTTP server closed.');
-    <% if (useDatabase && orm === "Mongoose") { %>
-    try {
-      await mongoose.connection.close();
-      console.log('Mongoose connection closed.');
-    } catch (err) {
-      console.error('Error closing Mongoose connection:', err);
-    }
+let server;
+if (process.env.NODE_ENV !== 'test') {
+  server = app.listen(port, async () => {
+    <% if (useDatabase && orm == "Mongoose") {%>
+      await connectDB();
     <% } %>
-    <% if (useDatabase && orm === "Prisma") { %>
-    try {
-      await db.$disconnect();
-      console.log('Prisma client disconnected.');
-    } catch (err) {
-      console.error('Error disconnecting Prisma client:', err);
-    }
-    <% } %>
-    process.exit(0);
+    console.log(`server listening on AppPort ${port}...`);
   });
 
-  setTimeout(() => {
-    console.error('Forced shutdown due to timeout.');
-    process.exit(1);
-  }, 10000).unref();
-};
+  const shutdown = async (signal) => {
+    console.log(`Received ${signal}. Shutting down gracefully...`);
+    server.close(async () => {
+      console.log('HTTP server closed.');
+      <% if (useDatabase && orm === "Mongoose") { %>
+      try {
+        await mongoose.connection.close();
+        console.log('Mongoose connection closed.');
+      } catch (err) {
+        console.error('Error closing Mongoose connection:', err);
+      }
+      <% } %>
+      <% if (useDatabase && orm === "Prisma") { %>
+      try {
+        await db.$disconnect();
+        console.log('Prisma client disconnected.');
+      } catch (err) {
+        console.error('Error disconnecting Prisma client:', err);
+      }
+      <% } %>
+      process.exit(0);
+    });
 
-process.on('SIGTERM', () => shutdown('SIGTERM'));
-process.on('SIGINT', () => shutdown('SIGINT'));
+    setTimeout(() => {
+      console.error('Forced shutdown due to timeout.');
+      process.exit(1);
+    }, 10000).unref();
+  };
+
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
+}
+
+export default app;

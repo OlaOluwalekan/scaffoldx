@@ -30,6 +30,11 @@ const copyTemplates = async (srcDir, destDir, data) => {
           await fs.mkdir(destPath);
           await copyTemplates(srcPath, destPath, data);
         }
+      } else if (file === 'tests') {
+        if (data.includeTests) {
+          await fs.mkdir(destPath);
+          await copyTemplates(srcPath, destPath, data);
+        }
       } else {
         await fs.mkdir(destPath);
         await copyTemplates(srcPath, destPath, data);
@@ -37,6 +42,12 @@ const copyTemplates = async (srcDir, destDir, data) => {
     } else {
       if (data.language && data.language.toLowerCase() === 'javascript') {
         if (file === 'nodemon.json' || file === 'tsconfig.json') {
+          continue;
+        }
+      }
+
+      if (file.startsWith('vitest.config.')) {
+        if (!data.includeTests) {
           continue;
         }
       }

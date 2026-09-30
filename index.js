@@ -15,6 +15,7 @@ import {
   detectPackageManager,
   collectPackageManager,
 } from './helpers/packageManager.js';
+import { collectIncludeTests } from './helpers/tests.js';
 import chalk from 'chalk';
 
 // mimic __dirname in ESM
@@ -54,6 +55,9 @@ program.parse(process.argv);
   // 7. Port Number
   const port = await collectServerPort();
 
+  // 8. Include tests?
+  const includeTests = await collectIncludeTests();
+
   const templateData = {
     appName: appName === '.' ? path.basename(process.cwd()) : appName,
     packageManager,
@@ -64,6 +68,7 @@ program.parse(process.argv);
     useDatabase,
     databaseType,
     orm,
+    includeTests,
   };
 
   // prepare directory for app files and folders
