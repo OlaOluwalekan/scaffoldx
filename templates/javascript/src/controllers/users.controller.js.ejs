@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import * as usersService from '../services/users.service.js';
 
-export const getUsers = async (req, res) => {
+export const getUsers = async (_req, res) => {
   const users = await usersService.getUsers();
   res.status(StatusCodes.OK).json(<% if (useDatabase) { %>users<% } else { %>{ users }<% } %>);
 };

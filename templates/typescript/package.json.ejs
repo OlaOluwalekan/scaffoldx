@@ -5,7 +5,8 @@
   "scripts": {
     "predev": "rimraf <%= outputFolder %>",
     "dev": "nodemon",
-    "start": "node <%= outputFolder %>/<%= entryPoint %>.js"<% if (includeTests) { %>,
+    "start": "node <%= outputFolder %>/<%= entryPoint %>.js",
+    "lint": "eslint ."<% if (includeTests) { %>,
     "test": "vitest run"<% } %>
   },
   "type": "module",
@@ -43,14 +44,18 @@
     <% } %>
   },
   "devDependencies": {
+    "@eslint/js": "^9.11.0",
     "@types/express": "^4.17.21",
     "@types/node": "^22.5.4",
     "@types/cors": "^2.8.17",
     "@types/morgan": "^1.9.9",
     "@types/swagger-ui-express": "^4.1.8",
     "@types/yamljs": "^0.2.34",
+    "eslint": "^9.11.0",
+    "globals": "^15.9.0",
     "nodemon": "^3.1.4",
-    "typescript": "^5.5.4"<% if (includeTests) { %>,
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.7.0"<% if (includeTests) { %>,
     "@types/supertest": "^6.0.2",
     "supertest": "^7.0.0",
     "vitest": "^2.1.1"<% } %>
