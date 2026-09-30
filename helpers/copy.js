@@ -82,9 +82,25 @@ const copyTemplates = async (srcDir, destDir, data) => {
         continue;
       }
 
+      if (file === 'pnpm-workspace.yaml.ejs') {
+        if (data.packageManager === 'pnpm') {
+          const destFile = path.join(destDir, 'pnpm-workspace.yaml');
+          const content = await fs.readFile(srcPath, 'utf-8');
+          await fs.writeFile(destFile, content, 'utf-8');
+        }
+        continue;
+      }
+
       const content = await fs.readFile(srcPath, 'utf-8');
       const render = ejs.render(content, data);
       await fs.writeFile(destPath, render, 'utf-8');
+
+      if (file === '.env.example.ejs') {
+        const envFile = path.join(destDir, '.env');
+        if (!fs.existsSync(envFile)) {
+          await fs.writeFile(envFile, render, 'utf-8');
+        }
+      }
     }
   }
 };
