@@ -1,9 +1,10 @@
 <% if (useDatabase && orm == "Mongoose") {%>
 import mongoose from 'mongoose';
+import config from '../config/index.js';
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(config.mongoUri);
     console.log('connected to MongoDB');
   } catch (error) {
     console.log('MONGODB connection error:', error);
@@ -15,18 +16,17 @@ export default connectDB;
 
 <% if (useDatabase && orm == "Prisma") {%>
 <% if (databaseType === 'Postgres') { %>
-import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../generated/prisma/client.js';
+import config from '../config/index.js';
 
-const connectionString = `${process.env.DATABASE_URL}`;
+const connectionString = config.databaseUrl;
 
 const adapter = new PrismaPg({ connectionString });
 const db = new PrismaClient({ adapter });
 
 export default db;
 <% } else { %>
-import 'dotenv/config';
 import { PrismaClient } from '../generated/prisma/client.js';
 
 const db = new PrismaClient();

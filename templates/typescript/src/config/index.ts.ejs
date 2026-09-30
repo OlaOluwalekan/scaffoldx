@@ -1,0 +1,26 @@
+import dotenv from 'dotenv';
+import { cleanEnv, port, str } from 'envalid';
+
+dotenv.config();
+
+const env = cleanEnv(process.env, {
+  PORT: port({ default: <%= port %> }),
+<% if (useDatabase && orm === "Mongoose") { %>
+  MONGO_URI: str({ desc: 'MongoDB connection string' }),
+<% } %>
+<% if (useDatabase && orm === "Prisma") { %>
+  DATABASE_URL: str({ desc: 'Database connection URL' }),
+<% } %>
+});
+
+export const config = {
+  port: env.PORT,
+<% if (useDatabase && orm === "Mongoose") { %>
+  mongoUri: env.MONGO_URI,
+<% } %>
+<% if (useDatabase && orm === "Prisma") { %>
+  databaseUrl: env.DATABASE_URL,
+<% } %>
+};
+
+export default config;

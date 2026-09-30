@@ -1,9 +1,8 @@
 import express from "express";
-import dotenv from "dotenv";
-dotenv.config();
 import "express-async-errors";
 import morgan from "morgan";
 import cors from "cors";
+import config from "./config/index.js";
 import securityMiddleware from "./middleware/security.js";
 <% if (useDatabase && orm === "Mongoose") { %>
 import connectDB from './db/connect.js';
@@ -32,7 +31,7 @@ app.use("/api/v1/users", userRoutes);
 app.use(NotFound);
 app.use(errorHandlerMiddleware);
 
-const port = process.env.PORT || <%= port %>;
+const port = config.port;
 
 app.listen(port, async () => {
   <% if (useDatabase && orm == "Mongoose") {%>
