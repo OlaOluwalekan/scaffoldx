@@ -2,18 +2,22 @@ import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
 import "express-async-errors";
+import morgan from "morgan";
+import cors from "cors";
+import securityMiddleware from "./middleware/security.js";
 <% if (useDatabase && orm === "Mongoose") { %>
 import connectDB from './db/connect.js';
 <% } %>
 import NotFound from "./middleware/not-found.js";
 import errorHandlerMiddleware from "./middleware/error-handler.js";
 import userRoutes from "./routes/users.routes.js";
-import cors from "cors"
 
 const app = express();
 
-app.use(cors())
-app.use(express.json())
+securityMiddleware(app);
+app.use(cors());
+app.use(morgan("dev"));
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
