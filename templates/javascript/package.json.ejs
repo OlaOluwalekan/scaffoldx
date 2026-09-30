@@ -13,6 +13,9 @@
     "author": "",
     "license": "ISC",
     "description": "",
+    "engines": {
+        "node": ">=20.19.0"
+    },
     <% if (useDatabase && orm == "Prisma") {%>
     "prisma": {
         "schema": "src/prisma/schema.prisma"
