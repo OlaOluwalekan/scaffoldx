@@ -10,6 +10,7 @@ import connectDB from './db/connect.js';
 <% } %>
 import NotFound from "./middleware/not-found.js";
 import errorHandlerMiddleware from "./middleware/error-handler.js";
+import healthRoutes from "./routes/health.routes.js";
 import userRoutes from "./routes/users.routes.js";
 
 const app = express();
@@ -24,6 +25,7 @@ app.get("/", (req, res) => {
 });
 
 // routes middleware
+app.use("/health", healthRoutes);
 app.use("/api/v1/users", userRoutes);
 
 // error middleware

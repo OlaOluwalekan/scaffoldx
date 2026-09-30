@@ -8,6 +8,7 @@ import securityMiddleware from './middleware/security.js';
 <% if (useDatabase && orm === "Mongoose") { %>
 import connectDB from './db/connect.js';
 <% } %>
+import healthRoutes from './routes/health.routes.js';
 import userRoutes from './routes/users.routes.js';
 import NotFound from './middleware/not-found.js';
 import errorHandlerMiddleware from './middleware/error-handler.js';
@@ -24,6 +25,7 @@ app.get('/', (req, res) => {
 });
 
 // routes middleware
+app.use('/health', healthRoutes);
 app.use('/api/v1/users', userRoutes);
 
 // error middleware

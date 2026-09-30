@@ -40,11 +40,6 @@ const copyTemplates = async (srcDir, destDir, data) => {
           continue;
         }
       }
-      if (data.orm === 'Prisma') {
-        if (file === '.gitignore') {
-          continue;
-        }
-      }
 
       if (file === 'docker-compose.postgres.yml.ejs') {
         if (data.databaseType === 'Postgres') {

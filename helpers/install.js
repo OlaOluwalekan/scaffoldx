@@ -110,7 +110,7 @@ export const installDependencies = async (
             await fs.promises.rename(envSourcePath, envDestPath);
           }
           if (fs.existsSync(gitignoreSrcPath)) {
-            await fs.promises.rename(gitignoreSrcPath, gitignoreDestPath);
+            await fs.promises.unlink(gitignoreSrcPath);
           }
 
           if (fs.existsSync(envDestPath)) {
@@ -189,6 +189,11 @@ model User {
         }
       });
     });
+  }
+  const envExamplePath = path.join(cwd, '.env.example');
+  const envPath = path.join(cwd, '.env');
+  if (!fs.existsSync(envPath) && fs.existsSync(envExamplePath)) {
+    await fs.promises.copyFile(envExamplePath, envPath);
   }
 
   const postgresDbUrl = `postgresql://postgres:postgres@localhost:5432/${appName}_dev?schema=public`;
