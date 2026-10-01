@@ -3,24 +3,24 @@ import { Server } from "http";
 import "express-async-errors";
 import morgan from "morgan";
 import cors from "cors";
-import config from "./config/index.js";
-import securityMiddleware from "./middleware/security.js";
+import config from "./config/index";
+import securityMiddleware from "./middleware/security";
 <% if (useDatabase && orm === "Mongoose") { %>
 import mongoose from "mongoose";
-import connectDB from "./db/connect.js";
+import connectDB from "./db/connect";
 <% } %>
 <% if (useDatabase && orm === "Prisma") { %>
-import db from "./db/connect.js";
+import db from "./db/connect";
 <% } %>
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
-import NotFound from "./middleware/not-found.js";
-import errorHandlerMiddleware from "./middleware/error-handler.js";
-import healthRoutes from "./routes/health.routes.js";
-import userRoutes from "./routes/users.routes.js";
+import NotFound from "./middleware/not-found";
+import errorHandlerMiddleware from "./middleware/error-handler";
+import healthRoutes from "./routes/health.routes";
+import userRoutes from "./routes/users.routes";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const openApiPath = fs.existsSync(path.join(__dirname, "docs/openapi.yaml"))

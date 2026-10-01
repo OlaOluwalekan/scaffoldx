@@ -1,8 +1,8 @@
 <% if (useDatabase && orm === "Mongoose") { %>
-import User from '../models/User.model.js';
+import User from '../models/User.model';
 <% } %>
 <% if (useDatabase && orm === "Prisma") { %>
-import db from '../db/connect.js';
+import db from '../db/connect';
 <% } %>
 
 export const getUsers = async () => {

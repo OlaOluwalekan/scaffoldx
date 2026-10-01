@@ -41,7 +41,7 @@ const copyTemplates = async (srcDir, destDir, data) => {
       }
     } else {
       if (data.language && data.language.toLowerCase() === 'javascript') {
-        if (file === 'nodemon.json' || file === 'tsconfig.json') {
+        if (file === 'tsconfig.json') {
           continue;
         }
       }

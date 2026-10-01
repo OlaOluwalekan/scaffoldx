@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "<%= entryPoint %>.js",
   "scripts": {
-    "predev": "rimraf <%= outputFolder %>",
-    "dev": "nodemon",
+    "dev": "tsx watch src/<%= entryPoint %>.ts",
+    "build": "tsup src/<%= entryPoint %>.ts --format esm --out-dir <%= outputFolder %>",
     "start": "node <%= outputFolder %>/<%= entryPoint %>.js",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint ."<% if (includeTests) { %>,
     "test": "vitest run"<% } %>
   },
@@ -56,7 +57,8 @@
     "@types/yamljs": "^0.2.34",
     "eslint": "^9.11.0",
     "globals": "^15.9.0",
-    "nodemon": "^3.1.4",
+    "tsup": "^8.2.4",
+    "tsx": "^4.19.0",
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.7.0"<% if (includeTests) { %>,
     "@types/supertest": "^6.0.2",

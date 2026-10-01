@@ -1,6 +1,6 @@
 <% if (useDatabase && orm == "Mongoose") {%>
 import mongoose from 'mongoose';
-import config from '../config/index.js';
+import config from '../config/index';
 
 const connectDB = async () => {
   try {
@@ -18,7 +18,7 @@ export default connectDB;
 <% if (databaseType === 'Postgres') { %>
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../generated/prisma/client.js';
-import config from '../config/index.js';
+import config from '../config/index';
 
 const connectionString = config.databaseUrl;
 
