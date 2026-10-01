@@ -62,8 +62,18 @@ const copyTemplates = async (srcDir, destDir, data) => {
         continue;
       }
 
-      if (file === 'docker-compose.mongo.yml.ejs') {
-        if (data.databaseType === 'MongoDB') {
+      if (file === 'docker-compose.mongo-mongoose.yml.ejs') {
+        if (data.databaseType === 'MongoDB' && data.orm === 'Mongoose') {
+          const destFile = path.join(destDir, 'docker-compose.yml');
+          const content = await fs.readFile(srcPath, 'utf-8');
+          const render = ejs.render(content, data);
+          await fs.writeFile(destFile, render, 'utf-8');
+        }
+        continue;
+      }
+
+      if (file === 'docker-compose.mongo-prisma.yml.ejs') {
+        if (data.databaseType === 'MongoDB' && data.orm === 'Prisma') {
           const destFile = path.join(destDir, 'docker-compose.yml');
           const content = await fs.readFile(srcPath, 'utf-8');
           const render = ejs.render(content, data);

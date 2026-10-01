@@ -198,7 +198,8 @@ model User {
   }
 
   const postgresDbUrl = `postgresql://postgres:postgres@localhost:5432/${resolvedAppName}_dev?schema=public`;
-  const mongoDbUrl = `mongodb://admin:secret_password@localhost:27017/${resolvedAppName}_dev?authSource=admin&replicaSet=rs0`;
+  const mongoDbMongooseUrl = `mongodb://admin:secret_password@localhost:27017/${resolvedAppName}_dev?authSource=admin`;
+  const mongoDbPrismaUrl = `mongodb://admin:secret_password@localhost:27017/${resolvedAppName}_dev?authSource=admin&replicaSet=rs0`;
 
   const shouldPrintCd = rawAppName ? rawAppName !== '.' : path.resolve(cwd) !== process.cwd();
 
@@ -212,10 +213,10 @@ model User {
         orm !== null
           ? `open ${chalk.green('.env')} file and replace ${chalk.green(
               orm === 'Mongoose'
-                ? `MONGO_URI=${mongoDbUrl}`
+                ? `MONGO_URI=${mongoDbMongooseUrl}`
                 : databaseType === 'Postgres'
                   ? `DATABASE_URL='${postgresDbUrl}'`
-                  : `DATABASE_URL='${mongoDbUrl}'`
+                  : `DATABASE_URL='${mongoDbPrismaUrl}'`
             )} with your actual database uri`
           : ''
       }
