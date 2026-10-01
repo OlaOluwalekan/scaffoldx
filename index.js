@@ -80,10 +80,11 @@ program.parse(process.argv);
     await installDependencies(
       targetDir,
       port,
-      appName,
+      templateData.appName,
       orm,
       packageManager,
-      databaseType
+      databaseType,
+      appName
     );
   } catch (error) {
     console.error(chalk.red('\nFailed to install dependencies:'), error.message || error);

@@ -21,10 +21,11 @@ const DEV_COMMANDS = {
 export const installDependencies = async (
   cwd,
   port,
-  appName,
+  resolvedAppName,
   orm,
   packageManager = 'npm',
-  databaseType = null
+  databaseType = null,
+  rawAppName = null
 ) => {
   const installCmd = INSTALL_COMMANDS[packageManager] || 'npm install';
   const devCmd = DEV_COMMANDS[packageManager] || 'npm run dev';
@@ -117,8 +118,8 @@ export const installDependencies = async (
             let envContent = await fs.promises.readFile(envDestPath, 'utf-8');
             const targetUrl =
               databaseType === 'MongoDB'
-                ? `mongodb://admin:secret_password@localhost:27017/${appName}_dev?authSource=admin&replicaSet=rs0`
-                : `postgresql://postgres:postgres@localhost:5432/${appName}_dev?schema=public`;
+                ? `mongodb://admin:secret_password@localhost:27017/${resolvedAppName}_dev?authSource=admin&replicaSet=rs0`
+                : `postgresql://postgres:postgres@localhost:5432/${resolvedAppName}_dev?schema=public`;
             if (/DATABASE_URL=/.test(envContent)) {
               envContent = envContent.replace(
                 /DATABASE_URL=.*(\r?\n|$)/,
@@ -196,8 +197,10 @@ model User {
     await fs.promises.copyFile(envExamplePath, envPath);
   }
 
-  const postgresDbUrl = `postgresql://postgres:postgres@localhost:5432/${appName}_dev?schema=public`;
-  const mongoDbUrl = `mongodb://admin:secret_password@localhost:27017/${appName}_dev?authSource=admin&replicaSet=rs0`;
+  const postgresDbUrl = `postgresql://postgres:postgres@localhost:5432/${resolvedAppName}_dev?schema=public`;
+  const mongoDbUrl = `mongodb://admin:secret_password@localhost:27017/${resolvedAppName}_dev?authSource=admin&replicaSet=rs0`;
+
+  const shouldPrintCd = rawAppName ? rawAppName !== '.' : path.resolve(cwd) !== process.cwd();
 
   console.log(
     chalk.yellow(`
@@ -221,8 +224,7 @@ model User {
           ? `\n      generate your Prisma client using ${chalk.green('npx prisma generate')}`
           : ''
       }
-
-      ${appName !== '.' ? `cd ./${appName}` : ''}
+${shouldPrintCd ? `\n      cd ./${rawAppName || resolvedAppName}` : ''}
 
       start your dev server using ${chalk.green(devCmd)}
 
