@@ -65,3 +65,29 @@ Environment: Windows, Node.js v20.x / v22.x, npm
 | **F6: TS + Prisma** | PASS | Scaffolds files and Prisma schema. Works as designed in v2. |
 | **Directory collision** | FAIL | **Known bug:** `inquirer.prompt` for overwrite in `helpers/appname.js` missing `await`, silently continues / crashes. |
 | **Install error handling** | FAIL | **Known bug:** `exec('npm install')` errors logged but not rejected; CLI exits 0 regardless. |
+
+---
+
+## v3.0.0 Regression Test Results
+
+Date: 2026-10-02
+Environment: Windows, Node.js v22.x, npm, pnpm
+
+| Flow / Feature | Status | Notes / Fix Verifications |
+|---|---|---|
+| **F1: JS + No-DB** | PASS | Scaffolds cleanly with `.env`, `.env.example`, `.gitignore` (with AI ignores), and lean scripts. |
+| **F2: TS + No-DB** | PASS | Extensionless TS imports, `tsx watch`, `tsup build`, `vitest run`, and `eslint .` all succeed. |
+| **F3: JS + Mongoose** | PASS | Standalone single-node Mongo `docker-compose.yml` (no replica set); Compass connects directly. |
+| **F4: TS + Mongoose** | PASS | Standalone single-node Mongo `docker-compose.yml`, extensionless imports, Prettier-formatted output. |
+| **F5: JS + Postgres (Prisma)** | PASS | Pure JS dependencies (no stray TS dependencies in devDependencies); Prisma scripts included. |
+| **F6: TS + Postgres (Prisma)** | PASS | Full Prisma + Postgres stack with Prisma scripts (`docker:up`, `docker:down`, `db:*`). |
+| **F7: TS + Mongo (Prisma)** | PASS | Replica set configured in `docker-compose.yml` for Prisma Mongo compatibility. |
+| **Directory collision handling** | PASS | Properly prompts (Clear / Ignore / Exit) and awaits response; clears directory when requested. |
+| **Install error handling** | PASS | Rejects on spawn error, logs chalk error, exits code 1. |
+| **Step 1: appName propagation** | PASS | No `._dev` bug when scaffolding into `.`. Resolved directory basename used properly. |
+| **Step 2: Mongo docker-compose split** | PASS | Mongoose gets single-node compose; Prisma gets replica set compose with keyfile. |
+| **Step 3: Extensionless TS imports** | PASS | Bundler module resolution, extensionless local imports compile cleanly with `tsx` and `tsup`. |
+| **Step 4: `--yes` flag & overrides** | PASS | `scaffoldx --yes` and flag combinations (`--js`, `--mongodb`, `--pm <mgr>`, `--no-db`) complete non-interactively with zero prompts. |
+| **Step 5: Lean package.json scripts** | PASS | Only relevant `docker:*` and `db:*` scripts generated for active ORM/DB setup. |
+| **Step 6: Prettier output formatting** | PASS | Cleanly formatted source, JSON, YAML, and collapsed blank lines in `.env`. |
+| **Step 7: AI tooling metadata ignores** | PASS | `.agents/`, `.claude/`, `.windsurf/`, and `skills-lock.json` safely ignored. |
