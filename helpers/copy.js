@@ -2,6 +2,36 @@ import { exec } from 'child_process';
 import ejs from 'ejs';
 import fs from 'fs-extra';
 import path from 'path';
+import prettier from 'prettier';
+
+const PRETTIER_EXTENSIONS = ['.js', '.ts', '.json', '.yml', '.yaml'];
+
+const formatContent = async (content, destPath) => {
+  const ext = path.extname(destPath).toLowerCase();
+  const basename = path.basename(destPath);
+
+  if (basename.startsWith('.env')) {
+    // For .env/.env.example, collapse 3+ consecutive blank lines down to 1
+    return content.replace(/\n{3,}/g, '\n\n');
+  }
+
+  if (PRETTIER_EXTENSIONS.includes(ext)) {
+    try {
+      return await prettier.format(content, {
+        filepath: destPath,
+        tabWidth: 2,
+        semi: true,
+        singleQuote: true,
+        trailingComma: 'es5',
+      });
+    } catch (err) {
+      // Fallback to unformatted content if prettier fails
+      return content;
+    }
+  }
+
+  return content;
+};
 
 const copyTemplates = async (srcDir, destDir, data) => {
   const files = await fs.readdir(srcDir);
@@ -57,7 +87,8 @@ const copyTemplates = async (srcDir, destDir, data) => {
           const destFile = path.join(destDir, 'docker-compose.yml');
           const content = await fs.readFile(srcPath, 'utf-8');
           const render = ejs.render(content, data);
-          await fs.writeFile(destFile, render, 'utf-8');
+          const formatted = await formatContent(render, destFile);
+          await fs.writeFile(destFile, formatted, 'utf-8');
         }
         continue;
       }
@@ -67,7 +98,8 @@ const copyTemplates = async (srcDir, destDir, data) => {
           const destFile = path.join(destDir, 'docker-compose.yml');
           const content = await fs.readFile(srcPath, 'utf-8');
           const render = ejs.render(content, data);
-          await fs.writeFile(destFile, render, 'utf-8');
+          const formatted = await formatContent(render, destFile);
+          await fs.writeFile(destFile, formatted, 'utf-8');
         }
         continue;
       }
@@ -77,7 +109,8 @@ const copyTemplates = async (srcDir, destDir, data) => {
           const destFile = path.join(destDir, 'docker-compose.yml');
           const content = await fs.readFile(srcPath, 'utf-8');
           const render = ejs.render(content, data);
-          await fs.writeFile(destFile, render, 'utf-8');
+          const formatted = await formatContent(render, destFile);
+          await fs.writeFile(destFile, formatted, 'utf-8');
         }
         continue;
       }
@@ -87,7 +120,8 @@ const copyTemplates = async (srcDir, destDir, data) => {
           const destFile = path.join(destDir, 'prisma.config.ts');
           const content = await fs.readFile(srcPath, 'utf-8');
           const render = ejs.render(content, data);
-          await fs.writeFile(destFile, render, 'utf-8');
+          const formatted = await formatContent(render, destFile);
+          await fs.writeFile(destFile, formatted, 'utf-8');
         }
         continue;
       }
@@ -96,19 +130,21 @@ const copyTemplates = async (srcDir, destDir, data) => {
         if (data.packageManager === 'pnpm') {
           const destFile = path.join(destDir, 'pnpm-workspace.yaml');
           const content = await fs.readFile(srcPath, 'utf-8');
-          await fs.writeFile(destFile, content, 'utf-8');
+          const formatted = await formatContent(content, destFile);
+          await fs.writeFile(destFile, formatted, 'utf-8');
         }
         continue;
       }
 
       const content = await fs.readFile(srcPath, 'utf-8');
       const render = ejs.render(content, data);
-      await fs.writeFile(destPath, render, 'utf-8');
+      const formatted = await formatContent(render, destPath);
+      await fs.writeFile(destPath, formatted, 'utf-8');
 
       if (file === '.env.example.ejs') {
         const envFile = path.join(destDir, '.env');
         if (!fs.existsSync(envFile)) {
-          await fs.writeFile(envFile, render, 'utf-8');
+          await fs.writeFile(envFile, formatted, 'utf-8');
         }
       }
     }
