@@ -1,6 +1,10 @@
 import inquirer from "inquirer";
 
-export const collectServerPort = async () => {
+export const collectServerPort = async (opts = {}) => {
+  if (opts.yes) {
+    return 3000;
+  }
+
   const { port } = await inquirer.prompt({
     name: "port",
     type: "input",

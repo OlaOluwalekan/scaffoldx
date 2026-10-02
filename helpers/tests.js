@@ -1,6 +1,10 @@
 import inquirer from 'inquirer';
 
-export const collectIncludeTests = async () => {
+export const collectIncludeTests = async (opts = {}) => {
+  if (opts.yes) {
+    return true;
+  }
+
   const { includeTests } = await inquirer.prompt([
     {
       type: 'confirm',

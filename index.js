@@ -24,39 +24,49 @@ const __dirname = path.dirname(__filename);
 
 const program = new Command();
 
-program.version('1.0.0').description('An express server scaffolding CLI tool');
+program
+  .version('1.0.0')
+  .description('An express server scaffolding CLI tool')
+  .option('-y, --yes', 'Skip prompts and use defaults')
+  .option('--js', 'Use JavaScript')
+  .option('--ts', 'Use TypeScript (default)')
+  .option('--postgres', 'Use Postgres + Prisma (default)')
+  .option('--mongodb', 'Use MongoDB')
+  .option('--no-db', 'Skip database setup')
+  .option('--pm <manager>', 'npm|pnpm|yarn|bun');
 
 program.parse(process.argv);
+const opts = program.opts();
 
 // main function
 (async () => {
   // 1. app name prompt and logic
-  const { appName, targetDir } = await collectAppName();
+  const { appName, targetDir } = await collectAppName(opts);
 
   // 2. Select package manager
   const detectedPM = detectPackageManager();
-  const packageManager = await collectPackageManager(detectedPM);
+  const packageManager = await collectPackageManager(detectedPM, opts);
 
   // 3. Choose JavaScript or TypeScript
-  const language = await languageSelect();
+  const language = await languageSelect(opts);
 
   // 4. Entry Point
-  const entryPoint = await collectEntryFile(language);
+  const entryPoint = await collectEntryFile(language, opts);
 
   // 5. Output Folder (for TypeScript)
   let outputFolder = '';
   if (language === 'TypeScript') {
-    outputFolder = await collectOutputFolder();
+    outputFolder = await collectOutputFolder(opts);
   }
 
   // 6. use database?
-  const { useDatabase, databaseType, orm } = await databaseOptions();
+  const { useDatabase, databaseType, orm } = await databaseOptions(opts);
 
   // 7. Port Number
-  const port = await collectServerPort();
+  const port = await collectServerPort(opts);
 
   // 8. Include tests?
-  const includeTests = await collectIncludeTests();
+  const includeTests = await collectIncludeTests(opts);
 
   const templateData = {
     appName: appName === '.' ? path.basename(process.cwd()) : appName,

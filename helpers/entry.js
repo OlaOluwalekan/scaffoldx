@@ -1,8 +1,12 @@
 import inquirer from "inquirer";
 
-export const collectEntryFile = async (language) => {
+export const collectEntryFile = async (language, opts = {}) => {
   // 3. Entry Point
   const defaultEntryPoint = language === "TypeScript" ? "index.ts" : "index.js";
+  if (opts.yes) {
+    return defaultEntryPoint.replace(/\..*$/, "");
+  }
+
   const { entryPoint } = await inquirer.prompt({
     name: "entryPoint",
     type: "input",

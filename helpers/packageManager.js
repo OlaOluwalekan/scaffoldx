@@ -15,13 +15,20 @@ export const detectPackageManager = () => {
   return 'npm';
 };
 
-export const collectPackageManager = async (defaultGuess = 'npm') => {
+export const collectPackageManager = async (defaultGuess = 'npm', opts = {}) => {
+  if (opts.yes) {
+    if (opts.pm && ['npm', 'pnpm', 'yarn', 'bun'].includes(opts.pm)) {
+      return opts.pm;
+    }
+    return defaultGuess || 'npm';
+  }
+
   const { packageManager } = await inquirer.prompt({
     name: 'packageManager',
     type: 'list',
     message: 'Select package manager:',
     choices: ['npm', 'pnpm', 'yarn', 'bun'],
-    default: defaultGuess,
+    default: opts.pm && ['npm', 'pnpm', 'yarn', 'bun'].includes(opts.pm) ? opts.pm : defaultGuess,
   });
 
   return packageManager;

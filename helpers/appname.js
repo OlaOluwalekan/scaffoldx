@@ -3,14 +3,18 @@ import fs from 'fs-extra';
 import chalk from 'chalk';
 import path from 'path';
 
-export const collectAppName = async () => {
-  // 1. prompt for app name
-  const { appName } = await inquirer.prompt({
-    name: 'appName',
-    type: 'input',
-    message: 'App name:',
-    default: '.',
-  });
+export const collectAppName = async (opts = {}) => {
+  let appName = '.';
+  if (!opts.yes) {
+    // 1. prompt for app name
+    const answer = await inquirer.prompt({
+      name: 'appName',
+      type: 'input',
+      message: 'App name:',
+      default: '.',
+    });
+    appName = answer.appName;
+  }
 
   // app name logic to handle creating and clearing of directory
   const targetDir =
@@ -20,6 +24,11 @@ export const collectAppName = async () => {
   const isNonEmpty = dirExists && (await fs.readdir(targetDir)).length > 0;
 
   if (isNonEmpty) {
+    if (opts.yes) {
+      await fs.emptyDir(targetDir);
+      return { appName, targetDir };
+    }
+
     console.log(
       chalk.yellow(
         `Target directory ${appName === '.' ? 'current directory' : `"${appName}"`} is not empty.`
