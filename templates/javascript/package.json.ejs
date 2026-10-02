@@ -6,7 +6,12 @@
         "start": "node src/<%= entryPoint %>.js", 
         "dev": "nodemon src/<%=entryPoint %>.js",
         "lint": "eslint ."<% if (includeTests) { %>,
-        "test": "vitest run"<% } %>
+        "test": "vitest run"<% } %><% if (useDatabase) { %>,
+        "docker:up": "docker compose up -d",
+        "docker:down": "docker compose down"<% } %><% if (useDatabase && orm === 'Prisma') { %>,
+        "db:generate": "prisma generate",
+        "db:migrate": "prisma migrate dev",
+        "db:studio": "prisma studio"<% } %>
     },
     "type": "module",
     "keywords": [],
