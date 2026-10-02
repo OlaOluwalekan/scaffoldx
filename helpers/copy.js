@@ -39,8 +39,11 @@ const copyTemplates = async (srcDir, destDir, data) => {
   for (const file of files) {
     const srcPath = path.join(srcDir, file);
 
-    let destinationFileName = file.includes('index')
-      ? file.replace('index', data.entryPoint)
+    const isSrcIndex =
+      path.basename(srcDir) === 'src' && /^index\.(js|ts)(\.ejs)?$/.test(file);
+
+    let destinationFileName = isSrcIndex
+      ? file.replace(/^index/, data.entryPoint)
       : file;
     const destPath = path.join(
       destDir,
